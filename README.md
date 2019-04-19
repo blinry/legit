@@ -1,17 +1,14 @@
-legit
-=====
+# legit
 
 A language whose programs are defined entirely by the graph formed by a Git repositories commits. Inspirations: [Befunge](https://esolangs.org/wiki/Befunge), [Brainfuck](https://esolangs.org/wiki/Brainfuck), [Folders](https://esolangs.org/wiki/Folders).
 
 (This specification will probably not be stable for a while.)
 
-Memory
-------
+## Memory
 
 Two types of data structures are available: A stack, and an endless tape. Both hold signed integers.
 
-Execution
----------
+## Execution
 
 Execution starts at the commit pointed to by the master branch. Commit messages can contain a series of single-word instructions, seperated with spaces, which are executed one by one.
 
@@ -20,8 +17,7 @@ After executing a commit with a tag, jump to the branch with the same name. Othe
 - If a commit has only one parent, execution will continue there after executing all instructions in the current commit.
 - If a commit has multiple parents (numbered 1, 2, 3, ...), the top stack element will be popped. If that element is n, to go (n-1)-th parent, or to the last one, if there are less than (n-1) parents.
 
-Instructions
-------------
+## Instructions
 
 - getchar: read char from STDIN and place it on the stack
 - putchar: pop top stack element and write it to STDOUT as a char
@@ -39,3 +35,18 @@ Instructions
 - cmp: pops two top values, pushes 1 if bottommost one is larger, 0 otherwise
 
 - quit: stop the program
+
+# Running the interpreter
+
+You'll need Ruby, and the "rugged" Gem:
+
+     gem install rugged
+
+`legit` comes with some examples, which can unfortunately not be added to this repository, because the programs are Git repositories themselves. To get them, run:
+
+    git submodule init
+    git submodule update
+
+Then, to execute a program, run
+
+    ruby interpreter.rb examples/hello/
