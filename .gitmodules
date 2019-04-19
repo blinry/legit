@@ -1,0 +1,6 @@
+[submodule "examples/hello"]
+	path = examples/hello
+	url = https://github.com/blinry/legit-hello
+[submodule "examples/rot13"]
+	path = examples/rot13
+	url = https://github.com/blinry/legit-rot13
