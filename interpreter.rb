@@ -118,7 +118,10 @@ class LegitInterpreter
   def transition
     @repo.references.each("refs/tags/*") do |ref|
       if @current == ref.target
-        @current = @repo.branches[ref.name.split("/").last].target
+        tagname = ref.name.split("/").last
+        branch = @repo.branches[tagname] || @repo.branches["origin/"+tagname]
+        raise "Could not jump to branch '"+tagname+"'" unless branch
+        @current = branch.target
         return
       end
     end

@@ -12,7 +12,7 @@ Two types of data structures are available: A stack, and an endless tape. Both h
 
 Execution starts at the commit pointed to by the master branch. Commit messages can contain a series of single-word instructions, seperated with spaces, which are executed one by one.
 
-After executing a commit with a tag, jump to the branch with the same name. Otherwise:
+After executing a commit with a tag, jump to the branch with the same name (which can be optionally prefixed with "origin/"). Otherwise:
 
 - If a commit has only one parent, execution will continue there after executing all instructions in the current commit.
 - If a commit has multiple parents (numbered 1, 2, 3, ...), the top stack element will be popped. If that element is n, to go (n-1)-th parent, or to the last one, if there are less than (n-1) parents.
