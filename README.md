@@ -21,8 +21,9 @@ After executing a commit with a tag, jump to the branch with the same name (whic
 
 - getchar: read char from STDIN and place it on the stack
 - putchar: pop top stack element and write it to STDOUT as a char
-- <Letter>: push ASCII value of that letter on the stack
 - <Number>: push the number on the stack
+- <Letter>: push ASCII value of that letter on the stack
+- "<Letters>": unescape string, then push the individual ASCII characters on the stack
 
 - read: place value of current cell on the stack
 - write: pop top stack element and write it to the current cell

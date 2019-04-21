@@ -1,5 +1,24 @@
 require "rugged"
 
+class String
+  def myshellsplit
+    pieces = [""]
+    stringmode = false
+    self.strip.gsub(/\s+/, " ").split("").each do |c|
+      if c == '"'
+        stringmode = (not stringmode)
+      elsif c == ' ' and not stringmode
+        pieces << ""
+      end
+
+      unless c == ' ' and not stringmode
+        pieces[-1] = pieces.last+c
+      end
+    end
+    return pieces
+  end
+end
+
 class Stack
   def initialize
     @stack = []
@@ -52,7 +71,7 @@ class LegitInterpreter
 
   def run
     loop do
-      @current.message.split(/\s+/).each do |command|
+      @current.message.myshellsplit.each do |command|
         execute command
         if @debug
           p @stack
@@ -71,6 +90,7 @@ class LegitInterpreter
     if @debug
       puts "Executing "+command+"..."
     end
+
     case command
     when "getchar"
       c = STDIN.getc
@@ -110,6 +130,10 @@ class LegitInterpreter
       @stack.push command.to_i
     when /^[a-zA-Z]$/
       @stack.push command[0].ord
+    when /^".*"$/
+      command.undump.split("").each do |c|
+        @stack.push c.ord
+      end
     else
       raise "Unknown command '"+command+"'"
     end
