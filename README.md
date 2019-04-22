@@ -59,3 +59,12 @@ You'll need Ruby, and the "rugged" Gem:
 Then, to execute a program, run
 
     ruby interpreter.rb examples/hello/
+
+# Running the compiler
+
+There's also a compiler, which compiles a *legit* program to [LLVM IR](https://llvm.org/docs/LangRef.html). You can then use LLVM tools to build binaries for all plaforms where you have a C standard library available (*legit* will be linked with `exit()`, `getchar()` and `putchar()`). Here's how to do it:
+
+    ruby compiler.rb examples/hello/
+    clang -O3 hello.ll -o hello
+
+As an alternative to the second step, you can use the provided Makefile and simply run `make hello`.
