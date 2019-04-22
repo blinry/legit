@@ -67,10 +67,13 @@ class LegitInterpreter
         @stack = Stack.new
         @tape = Tape.new
         @debug = false
+        @did_jump = false
     end
 
     def run
         loop do
+            @did_jump = false
+
             @current.message.myshellsplit.each do |command|
                 execute command
                 if @debug
@@ -78,7 +81,18 @@ class LegitInterpreter
                 end
             end
 
-            transition
+            unless @did_jump
+                case @current.parents.size
+                when 0
+                    exit
+                when 1
+                    @current = @current.parents.first
+                else
+                    v = @stack.pop
+                    @current = @current.parents[[v, @current.parents.size-1].min]
+                end
+            end
+
             if @debug
                 puts "Now at "+@current.oid
             end
@@ -90,6 +104,7 @@ class LegitInterpreter
         if @debug
             puts "Executing "+command+"..."
         end
+
 
         case command
         when "getchar"
@@ -130,34 +145,18 @@ class LegitInterpreter
             @stack.push command.to_i
         when /^[a-zA-Z]$/
             @stack.push command[0].ord
+        when /^\[.*\]$/
+            tag_name = command[1..-2]
+            tag = @repo.tags[tag_name]
+            raise "Could not jump to tag '"+tagname+"'" unless tag
+            @current = tag.target
+            @did_jump = true
         when /^".*"$/
             command.undump.split("").each do |c|
                 @stack.push c.ord
             end
         else
             raise "Unknown command '"+command+"'"
-        end
-    end
-
-    def transition
-        @repo.references.each("refs/tags/*") do |ref|
-            if @current == ref.target
-                tagname = ref.name.split("/").last
-                branch = @repo.branches[tagname] || @repo.branches["origin/"+tagname]
-                raise "Could not jump to branch '"+tagname+"'" unless branch
-                @current = branch.target
-                return
-            end
-        end
-
-        case @current.parents.size
-        when 0
-            exit
-        when 1
-            @current = @current.parents.first
-        else
-            v = @stack.pop
-            @current = @current.parents[[v, @current.parents.size-1].min]
         end
     end
 end
