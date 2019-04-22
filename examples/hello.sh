@@ -1,6 +1,7 @@
-rm -rf hello
-mkdir hello
-cd hello
+NAME=hello
+rm -rf $NAME
+mkdir $NAME
+cd $NAME
 git init
 
 EMPTY_TREE=$(git write-tree)

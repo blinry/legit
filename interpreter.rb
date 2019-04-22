@@ -74,7 +74,7 @@ class LegitInterpreter
         loop do
             @did_jump = false
 
-            @current.message.myshellsplit.each do |command|
+            @current.message.split("\n").first.myshellsplit.each do |command|
                 execute command
                 if @debug
                     p @stack

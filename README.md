@@ -10,7 +10,7 @@ Two types of data structures are available: A stack, and an endless tape. Both h
 
 ## Execution
 
-Execution starts at the commit pointed to by the master branch. Commit messages can contain a series of single-word instructions, seperated with spaces, which are executed one by one.
+Execution starts at the commit pointed to by the master branch. Commit messages can contain a series of single-word instructions, seperated with spaces, which are executed one by one. Only the first line is considered, so lines after that can be used for comments.
 
 After executing a commit with a tag, jump to the branch with the same name (which can be optionally prefixed with "origin/"). Otherwise:
 
@@ -51,10 +51,9 @@ You'll need Ruby, and the "rugged" Gem:
 
      gem install rugged
 
-`legit` comes with some examples, which can unfortunately not be added to this repository, because the programs are Git repositories themselves. To get them, run:
+`legit` comes with some examples. You can generate them like this:
 
-    git submodule init
-    git submodule update
+    make -C examples
 
 Then, to execute a program, run
 
