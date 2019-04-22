@@ -178,4 +178,4 @@ HERE
 end
 
 i = LegitCompiler.new(ARGV.first)
-i.compile("out.ll")
+i.compile(File.basename(ARGV.first)+".ll")
