@@ -41,8 +41,10 @@ declare void @exit(i32)
 declare i32 @getchar()
 declare void @putchar(i8)
 
-@stack = global [1000 x i8] undef
-@sp = global i64 undef
+@stack = global [1000 x i8] zeroinitializer
+
+; The stack pointer is an index into the stack.
+@sp = global i64 zeroinitializer
 
 define void @push(i8 %val) {
   %sp = load i64, i64* @sp
@@ -55,20 +57,13 @@ define void @push(i8 %val) {
   ret void
 }
 
-define i8 @peek() {
-    %sp = load i64, i64* @sp
-    %topsp = sub i64 %sp, 1
-    %addr = getelementptr [1000 x i8], [1000 x i8]* @stack, i64 0, i64 %topsp
-    %val = load i8, i8* %addr
-
-    ret i8 %val
-}
-
 define i8 @pop() {
-    %val = call i8 @peek()
-
     %sp = load i64, i64* @sp
     %newsp = sub i64 %sp, 1
+
+    %addr = getelementptr [1000 x i8], [1000 x i8]* @stack, i64 0, i64 %newsp
+    %val = load i8, i8* %addr
+
     store i64 %newsp, i64* @sp
 
     ret i8 %val
@@ -101,7 +96,8 @@ HERE
                     ir << "  %c#{uu} = call i8 @pop()\n"
                     ir << "  call void @putchar(i8 %c#{uu})\n"
                 when "dup"
-                    ir << "  %c#{uu} = call i8 @peek()\n"
+                    ir << "  %c#{uu} = call i8 @pop()\n"
+                    ir << "  call void @push(i8 %c#{uu})\n"
                     ir << "  call void @push(i8 %c#{uu})\n"
                 when "add"
                     ir << "  %a#{uu} = call i8 @pop()\n"
