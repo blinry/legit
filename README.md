@@ -21,7 +21,7 @@ After executing a commit with a tag, jump to the branch with the same name (whic
 
 I/O:
 
-- `getchar`: read char from STDIN and place it on the stack
+- `getchar`: read char from STDIN and place it on the stack. On EOF, push a 0.
 - `putchar`: pop top stack element and write it to STDOUT as a char
 - `<Number>`: push the number on the stack
 - `<Letter>`: push ASCII value of that letter on the stack
