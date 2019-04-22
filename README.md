@@ -19,10 +19,12 @@ After executing a commit with a tag, jump to the branch with the same name (whic
 
 ## Instructions
 
+Popping from an empty stack will return 0.
+
 I/O:
 
 - `getchar`: read char from STDIN and place it on the stack. On EOF, push a 0.
-- `putchar`: pop top stack element and write it to STDOUT as a char
+- `putchar`: pop top stack element and write it to STDOUT as a char. The value is always truncated to an unsigned byte.
 - `<Number>`: push the number on the stack
 - `<Letter>`: push ASCII value of that letter on the stack
 - `"<Letters>"`: unescape string, then push the individual ASCII characters on the stack

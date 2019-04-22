@@ -111,7 +111,7 @@ class LegitInterpreter
             c = STDIN.getc
             @stack.push c.nil? ? 0 : c.ord
         when "putchar"
-            c = @stack.pop.chr
+            c = (@stack.pop % 256).chr
             STDOUT.write c
         when "dup"
             v = @stack.pop
