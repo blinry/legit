@@ -23,6 +23,7 @@ class LegitCompiler
     def initialize path
         @repo = Rugged::Repository.new(path)
         @debug = false
+        @did_jump = false
     end
 
     def compile outfile
@@ -41,14 +42,17 @@ declare void @exit(i32)
 declare i32 @getchar()
 declare void @putchar(i8)
 
-@stack = global [1000 x i8] zeroinitializer
-
+@stack = global [10000 x i8] zeroinitializer
 ; The stack pointer is an index into the stack.
 @sp = global i64 zeroinitializer
 
+@tape = global [10000 x i8] zeroinitializer
+; The tape pointer is an index into the tape.
+@tp = global i64 5000
+
 define void @push(i8 %val) {
   %sp = load i64, i64* @sp
-  %addr = getelementptr [1000 x i8], [1000 x i8]* @stack, i64 0, i64 %sp
+  %addr = getelementptr [10000 x i8], [10000 x i8]* @stack, i64 0, i64 %sp
   store i8 %val, i8* %addr
 
   %newsp = add i64 %sp, 1
@@ -61,7 +65,7 @@ define i8 @pop() {
     %sp = load i64, i64* @sp
     %newsp = sub i64 %sp, 1
 
-    %addr = getelementptr [1000 x i8], [1000 x i8]* @stack, i64 0, i64 %newsp
+    %addr = getelementptr [10000 x i8], [10000 x i8]* @stack, i64 0, i64 %newsp
     %val = load i8, i8* %addr
 
     store i64 %newsp, i64* @sp
@@ -69,17 +73,53 @@ define i8 @pop() {
     ret i8 %val
 }
 
+define void @right(i8 %offset) {
+    %tp = load i64, i64* @tp
+    %offset2 = zext i8 %offset to i64
+    %newtp = add i64 %tp, %offset2
+    store i64 %newtp, i64* @tp
+
+    ret void
+}
+
+define void @left(i8 %offset) {
+    %tp = load i64, i64* @tp
+    %offset2 = zext i8 %offset to i64
+    %newtp = sub i64 %tp, %offset2
+    store i64 %newtp, i64* @tp
+
+    ret void
+}
+
+define i8 @read() {
+  %tp = load i64, i64* @tp
+  %addr = getelementptr [10000 x i8], [10000 x i8]* @tape, i64 0, i64 %tp
+  %val = load i8, i8* %addr
+
+  ret i8 %val
+}
+
+define void @write(i8 %val) {
+  %tp = load i64, i64* @tp
+  %addr = getelementptr [10000 x i8], [10000 x i8]* @tape, i64 0, i64 %tp
+  store i8 %val, i8* %addr
+
+  ret void
+}
+
 define i32 @main() {
 HERE
         # It's not possible to jump to the first basic block of a function, so this
         # is a workaround to avoid having a label on the first line.
-        ir << "  br label %commit#{commits.first.oid}\n"
+        ir << "  br label %commit#{commits.first.oid[0..7]}\n"
 
         commits.each do |c|
-            ir << "commit"+c.oid+":\n"
+            ir << "commit"+c.oid[0..7]+":\n"
 
             u = c.oid[0..7]
             i = 0
+
+            @did_jump = false
 
             c.message.myshellsplit.each do |command|
                 uu = u+i.to_s
@@ -115,54 +155,50 @@ HERE
                     ir << "  %c#{uu} = icmp ugt i8 %b#{uu}, %a#{uu}\n"
                     ir << "  %c2#{uu} = zext i1 %c#{uu} to i8\n"
                     ir << "  call void @push(i8 %c2#{uu})\n"
-                    #when "read"
-                    #  @stack.push @tape.read
-                    #when "write"
-                    #  @tape.write @stack.pop
-                    #when "left"
-                    #  v = @stack.pop
-                    #  @tape.left v
-                    #when "right"
-                    #  v = @stack.pop
-                    #  @tape.right v
+                when "read"
+                    ir << "  %a#{uu} = call i8 @read()\n"
+                    ir << "  call void @push(i8 %a#{uu})\n"
+                when "write"
+                    ir << "  %a#{uu} = call i8 @pop()\n"
+                    ir << "  call void @write(i8 %a#{uu})\n"
+                when "right"
+                    ir << "  %a#{uu} = call i8 @pop()\n"
+                    ir << "  call void @right(i8 %a#{uu})\n"
+                when "left"
+                    ir << "  %a#{uu} = call i8 @pop()\n"
+                    ir << "  call void @left(i8 %a#{uu})\n"
                 when "quit"
                     ir << "  call void @exit(i32 0)\n"
                 when /\d+/
                     ir << "  call void @push(i8 #{command.to_i})\n"
                 when /^[a-zA-Z]$/
                     ir << "  call void @push(i8 #{command[0].ord})\n"
-                    #when /^".*"$/
-                    #  command.undump.split("").each do |c|
-                    #    @stack.push c.ord
-                    #  end
+                when /^".*"$/
+                    command.undump.split("").each do |c|
+                        ir << "  call void @push(i8 #{c[0].ord})\n"
+                    end
+                when /^\[.*\]$/
+                    tag_name = command[1..-2]
+                    tag = @repo.tags[tag_name]
+                    raise "Could not jump to tag '"+tagname+"'" unless tag
+                    ir << "  br label %commit#{tag.target.oid[0..7]}\n"
+                    @did_jump = true
                 else
                     raise "Unknown command '"+command+"'"
                 end
             end
 
-            did_jump = false
-
-            @repo.references.each("refs/tags/*") do |ref|
-                if c == ref.target
-                    tagname = ref.name.split("/").last
-                    branch = @repo.branches[tagname] || @repo.branches["origin/"+tagname]
-                    raise "Could not jump to branch '"+tagname+"'" unless branch
-                    ir << "  br label %commit#{branch.target.oid}\n"
-                    did_jump = true
-                end
-            end
-
-            unless did_jump
+            unless @did_jump
                 case c.parents.size
                 when 0
                     ir << "  call void @exit(i32 0)\n"
                     ir << "  unreachable\n"
                 when 1
-                    ir << "  br label %commit#{c.parents.first.oid}\n"
+                    ir << "  br label %commit#{c.parents.first.oid[0..7]}\n"
                 when 2
                     ir << "  %val#{u} = call i8 @pop()\n"
                     ir << "  %cmp#{u} = icmp eq i8 %val#{u}, 0\n"
-                    ir << "  br i1 %cmp#{u}, label %commit#{c.parents[0].oid}, label %commit#{c.parents[1].oid}\n"
+                    ir << "  br i1 %cmp#{u}, label %commit#{c.parents[0].oid[0..7]}, label %commit#{c.parents[1].oid[0..7]}\n"
                 else
                     raise "More than 2 parents are not implemented yet\n"
                 end
