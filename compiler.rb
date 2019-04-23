@@ -42,18 +42,18 @@ declare void @exit(i32)
 declare i32 @getchar()
 declare void @putchar(i8)
 
-@stack = global [10000 x i8] zeroinitializer
+@stack = global [10000 x i64] zeroinitializer
 ; The stack pointer is an index into the stack.
 @sp = global i64 zeroinitializer
 
-@tape = global [10000 x i8] zeroinitializer
+@tape = global [10000 x i64] zeroinitializer
 ; The tape pointer is an index into the tape.
 @tp = global i64 5000
 
-define void @push(i8 %val) {
+define void @push(i64 %val) {
   %sp = load i64, i64* @sp
-  %addr = getelementptr [10000 x i8], [10000 x i8]* @stack, i64 0, i64 %sp
-  store i8 %val, i8* %addr
+  %addr = getelementptr [10000 x i64], [10000 x i64]* @stack, i64 0, i64 %sp
+  store i64 %val, i64* %addr
 
   %newsp = add i64 %sp, 1
   store i64 %newsp, i64* @sp
@@ -61,48 +61,46 @@ define void @push(i8 %val) {
   ret void
 }
 
-define i8 @pop() {
+define i64 @pop() {
     %sp = load i64, i64* @sp
     %newsp = sub i64 %sp, 1
 
-    %addr = getelementptr [10000 x i8], [10000 x i8]* @stack, i64 0, i64 %newsp
-    %val = load i8, i8* %addr
+    %addr = getelementptr [10000 x i64], [10000 x i64]* @stack, i64 0, i64 %newsp
+    %val = load i64, i64* %addr
 
     store i64 %newsp, i64* @sp
 
-    ret i8 %val
+    ret i64 %val
 }
 
-define void @right(i8 %offset) {
+define void @right(i64 %offset) {
     %tp = load i64, i64* @tp
-    %offset2 = zext i8 %offset to i64
-    %newtp = add i64 %tp, %offset2
+    %newtp = add i64 %tp, %offset
     store i64 %newtp, i64* @tp
 
     ret void
 }
 
-define void @left(i8 %offset) {
+define void @left(i64 %offset) {
     %tp = load i64, i64* @tp
-    %offset2 = zext i8 %offset to i64
-    %newtp = sub i64 %tp, %offset2
+    %newtp = sub i64 %tp, %offset
     store i64 %newtp, i64* @tp
 
     ret void
 }
 
-define i8 @read() {
+define i64 @read() {
   %tp = load i64, i64* @tp
-  %addr = getelementptr [10000 x i8], [10000 x i8]* @tape, i64 0, i64 %tp
-  %val = load i8, i8* %addr
+  %addr = getelementptr [10000 x i64], [10000 x i64]* @tape, i64 0, i64 %tp
+  %val = load i64, i64* %addr
 
-  ret i8 %val
+  ret i64 %val
 }
 
-define void @write(i8 %val) {
+define void @write(i64 %val) {
   %tp = load i64, i64* @tp
-  %addr = getelementptr [10000 x i8], [10000 x i8]* @tape, i64 0, i64 %tp
-  store i8 %val, i8* %addr
+  %addr = getelementptr [10000 x i64], [10000 x i64]* @tape, i64 0, i64 %tp
+  store i64 %val, i64* %addr
 
   ret void
 }
@@ -128,54 +126,55 @@ HERE
                 case command
                 when "getchar"
                     ir << "  %c#{uu} = call i32 @getchar()\n"
-                    ir << "  %c2#{uu} = trunc i32 %c#{uu} to i8\n"
-                    ir << "  %c3#{uu} = icmp eq i8 %c2#{uu}, -1\n"
-                    ir << "  %c4#{uu} = select i1 %c3#{uu}, i8 0, i8 %c2#{uu}\n"
-                    ir << "  call void @push(i8 %c4#{uu})\n"
+                    ir << "  %c2#{uu} = sext i32 %c#{uu} to i64\n"
+                    ir << "  %c3#{uu} = icmp eq i64 %c2#{uu}, -1\n"
+                    ir << "  %c4#{uu} = select i1 %c3#{uu}, i64 0, i64 %c2#{uu}\n"
+                    ir << "  call void @push(i64 %c4#{uu})\n"
                 when "putchar"
-                    ir << "  %c#{uu} = call i8 @pop()\n"
-                    ir << "  call void @putchar(i8 %c#{uu})\n"
+                    ir << "  %c#{uu} = call i64 @pop()\n"
+                    ir << "  %c2#{uu} = trunc i64 %c#{uu} to i8\n"
+                    ir << "  call void @putchar(i8 %c2#{uu})\n"
                 when "dup"
-                    ir << "  %c#{uu} = call i8 @pop()\n"
-                    ir << "  call void @push(i8 %c#{uu})\n"
-                    ir << "  call void @push(i8 %c#{uu})\n"
+                    ir << "  %c#{uu} = call i64 @pop()\n"
+                    ir << "  call void @push(i64 %c#{uu})\n"
+                    ir << "  call void @push(i64 %c#{uu})\n"
                 when "add"
-                    ir << "  %a#{uu} = call i8 @pop()\n"
-                    ir << "  %b#{uu} = call i8 @pop()\n"
-                    ir << "  %c#{uu} = add i8 %a#{uu}, %b#{uu}\n"
-                    ir << "  call void @push(i8 %c#{uu})\n"
+                    ir << "  %a#{uu} = call i64 @pop()\n"
+                    ir << "  %b#{uu} = call i64 @pop()\n"
+                    ir << "  %c#{uu} = add i64 %a#{uu}, %b#{uu}\n"
+                    ir << "  call void @push(i64 %c#{uu})\n"
                 when "sub"
-                    ir << "  %a#{uu} = call i8 @pop()\n"
-                    ir << "  %b#{uu} = call i8 @pop()\n"
-                    ir << "  %c#{uu} = sub i8 %b#{uu}, %a#{uu}\n"
-                    ir << "  call void @push(i8 %c#{uu})\n"
+                    ir << "  %a#{uu} = call i64 @pop()\n"
+                    ir << "  %b#{uu} = call i64 @pop()\n"
+                    ir << "  %c#{uu} = sub i64 %b#{uu}, %a#{uu}\n"
+                    ir << "  call void @push(i64 %c#{uu})\n"
                 when "cmp"
-                    ir << "  %a#{uu} = call i8 @pop()\n"
-                    ir << "  %b#{uu} = call i8 @pop()\n"
-                    ir << "  %c#{uu} = icmp ugt i8 %b#{uu}, %a#{uu}\n"
-                    ir << "  %c2#{uu} = zext i1 %c#{uu} to i8\n"
-                    ir << "  call void @push(i8 %c2#{uu})\n"
+                    ir << "  %a#{uu} = call i64 @pop()\n"
+                    ir << "  %b#{uu} = call i64 @pop()\n"
+                    ir << "  %c#{uu} = icmp ugt i64 %b#{uu}, %a#{uu}\n"
+                    ir << "  %c2#{uu} = zext i1 %c#{uu} to i64\n"
+                    ir << "  call void @push(i64 %c2#{uu})\n"
                 when "read"
-                    ir << "  %a#{uu} = call i8 @read()\n"
-                    ir << "  call void @push(i8 %a#{uu})\n"
+                    ir << "  %a#{uu} = call i64 @read()\n"
+                    ir << "  call void @push(i64 %a#{uu})\n"
                 when "write"
-                    ir << "  %a#{uu} = call i8 @pop()\n"
-                    ir << "  call void @write(i8 %a#{uu})\n"
+                    ir << "  %a#{uu} = call i64 @pop()\n"
+                    ir << "  call void @write(i64 %a#{uu})\n"
                 when "right"
-                    ir << "  %a#{uu} = call i8 @pop()\n"
-                    ir << "  call void @right(i8 %a#{uu})\n"
+                    ir << "  %a#{uu} = call i64 @pop()\n"
+                    ir << "  call void @right(i64 %a#{uu})\n"
                 when "left"
-                    ir << "  %a#{uu} = call i8 @pop()\n"
-                    ir << "  call void @left(i8 %a#{uu})\n"
+                    ir << "  %a#{uu} = call i64 @pop()\n"
+                    ir << "  call void @left(i64 %a#{uu})\n"
                 when "quit"
                     ir << "  call void @exit(i32 0)\n"
                 when /\d+/
-                    ir << "  call void @push(i8 #{command.to_i})\n"
+                    ir << "  call void @push(i64 #{command.to_i})\n"
                 when /^[a-zA-Z]$/
-                    ir << "  call void @push(i8 #{command[0].ord})\n"
+                    ir << "  call void @push(i64 #{command[0].ord})\n"
                 when /^".*"$/
                     command.undump.split("").each do |c|
-                        ir << "  call void @push(i8 #{c[0].ord})\n"
+                        ir << "  call void @push(i64 #{c[0].ord})\n"
                     end
                 when /^\[.*\]$/
                     tag_name = command[1..-2]
@@ -196,8 +195,8 @@ HERE
                 when 1
                     ir << "  br label %commit#{c.parents.first.oid[0..7]}\n"
                 when 2
-                    ir << "  %val#{u} = call i8 @pop()\n"
-                    ir << "  %cmp#{u} = icmp eq i8 %val#{u}, 0\n"
+                    ir << "  %val#{u} = call i64 @pop()\n"
+                    ir << "  %cmp#{u} = icmp eq i64 %val#{u}, 0\n"
                     ir << "  br i1 %cmp#{u}, label %commit#{c.parents[0].oid[0..7]}, label %commit#{c.parents[1].oid[0..7]}\n"
                 else
                     raise "More than 2 parents are not implemented yet\n"
