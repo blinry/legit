@@ -40,7 +40,7 @@ end
 
 class Tape
     def initialize
-        @tape = Array.new(1000, 0)
+        @tape = Array.new(10000, 0)
         @position = @tape.size/2
     end
     def write value
@@ -66,7 +66,7 @@ class LegitInterpreter
         @current = @repo.branches["master"].target
         @stack = Stack.new
         @tape = Tape.new
-        @debug = false
+        @debug = ENV["LEGIT_DEBUG"] == "1"
         @did_jump = false
     end
 
@@ -78,6 +78,7 @@ class LegitInterpreter
                 execute command
                 if @debug
                     p @stack
+                    p @tape
                 end
             end
 
@@ -89,20 +90,17 @@ class LegitInterpreter
                     @current = @current.parents.first
                 else
                     v = @stack.pop
+                    v = 999 if v < 0 # FIXME
                     @current = @current.parents[[v, @current.parents.size-1].min]
                 end
             end
-
-            if @debug
-                puts "Now at "+@current.oid
-            end
-
         end
     end
 
     def execute command
         if @debug
-            puts "Executing "+command+"..."
+            hash = @current.oid[0..8]
+            puts "Executing #{command} (#{hash})..."
         end
 
 
