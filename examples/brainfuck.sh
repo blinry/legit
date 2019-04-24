@@ -88,5 +88,5 @@ DECODE1=$(git commit-tree -m "dup \">\" sub" -p $READ_CAB -p $DECODE2 $EMPTY_TRE
 GETCHAR=$(git commit-tree -m "getchar dup" -p $READ_BACK -p $DECODE1 $EMPTY_TREE)
 git tag read-loop $GETCHAR
 
-SETUP=$(git commit-tree -m "50 write 2 right 2 write 4 right" -p $GETCHAR $EMPTY_TREE)
+SETUP=$(git commit-tree -m "500 write 2 right 2 write 4 right" -p $GETCHAR $EMPTY_TREE)
 git reset $SETUP

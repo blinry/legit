@@ -193,13 +193,16 @@ HERE
                     ir << "  call void @exit(i32 0)\n"
                     ir << "  unreachable\n"
                 when 1
-                    ir << "  br label %commit#{c.parents.first.oid[0..7]}\n"
-                when 2
-                    ir << "  %val#{u} = call i64 @pop()\n"
-                    ir << "  %cmp#{u} = icmp eq i64 %val#{u}, 0\n"
-                    ir << "  br i1 %cmp#{u}, label %commit#{c.parents[0].oid[0..7]}, label %commit#{c.parents[1].oid[0..7]}\n"
+                    ir << "  br label %commit#{c.parents.last.oid[0..7]}\n"
                 else
-                    raise "More than 2 parents are not implemented yet\n"
+                    ir << "  %val#{u} = call i64 @pop()\n"
+                    ir << "  switch i64 %val#{u}, label %commit#{c.parents.last.oid[0..7]} ["
+
+                    c.parents[0..-2].each_with_index do |p, i|
+                        ir << "i64 #{i}, label %commit#{p.oid[0..7]} "
+                    end
+
+                    ir << "]\n"
                 end
             end
         end
