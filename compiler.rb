@@ -44,7 +44,7 @@ declare void @putchar(i8)
 
 @stack = global [10000 x i64] zeroinitializer
 ; The stack pointer is an index into the stack.
-@sp = global i64 zeroinitializer
+@sp = global i64 0
 
 @tape = global [10000 x i64] zeroinitializer
 ; The tape pointer is an index into the tape.
@@ -65,12 +65,21 @@ define i64 @pop() {
     %sp = load i64, i64* @sp
     %newsp = sub i64 %sp, 1
 
+    %cmp = icmp eq i64 %newsp, -1
+    br i1 %cmp, label %empty, label %continue
+
+continue:
     %addr = getelementptr [10000 x i64], [10000 x i64]* @stack, i64 0, i64 %newsp
     %val = load i64, i64* %addr
 
     store i64 %newsp, i64* @sp
 
     ret i64 %val
+empty:
+    %newsp2 = add i64 %newsp, 1
+    store i64 %newsp2, i64* @sp
+
+    ret i64 0
 }
 
 define void @right(i64 %offset) {
