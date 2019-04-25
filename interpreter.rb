@@ -40,7 +40,7 @@ end
 
 class Tape
     def initialize
-        @tape = Array.new(500, 0)
+        @tape = Array.new(10000, 0)
         @position = @tape.size/2
     end
     def write value
