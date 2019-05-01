@@ -2,7 +2,7 @@ NAME=hello
 rm -rf $NAME
 mkdir $NAME
 cd $NAME
-git init
+git init -q
 
 EMPTY_TREE=$(git write-tree)
 QUIT=$(git commit-tree -m "quit" $EMPTY_TREE)

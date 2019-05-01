@@ -2,7 +2,7 @@ NAME=rot13
 rm -rf $NAME
 mkdir $NAME
 cd $NAME
-git init
+git init -q
 
 EMPTY_TREE=$(git write-tree)
 

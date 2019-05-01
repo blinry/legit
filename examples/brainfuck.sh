@@ -1,10 +1,8 @@
-set -x
-
 NAME=brainfuck
 rm -rf $NAME
 mkdir $NAME
 cd $NAME
-git init
+git init -q
 
 # Basics
 
