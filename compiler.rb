@@ -147,6 +147,8 @@ HERE
                     ir << "  %c#{uu} = call i64 @pop()\n"
                     ir << "  call void @push(i64 %c#{uu})\n"
                     ir << "  call void @push(i64 %c#{uu})\n"
+                when "pop"
+                    ir << "  call i64 @pop()\n"
                 when "add"
                     ir << "  %a#{uu} = call i64 @pop()\n"
                     ir << "  %b#{uu} = call i64 @pop()\n"

@@ -115,6 +115,8 @@ class LegitInterpreter
             v = @stack.pop
             @stack.push v
             @stack.push v
+        when "pop"
+            @stack.pop
         when "add"
             a = @stack.pop
             b = @stack.pop
@@ -141,8 +143,6 @@ class LegitInterpreter
             exit
         when /\d+/
             @stack.push command.to_i
-        when /^[a-zA-Z]$/
-            @stack.push command[0].ord
         when /^\[.*\]$/
             tag_name = command[1..-2]
             tag = @repo.tags[tag_name]

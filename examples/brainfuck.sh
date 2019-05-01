@@ -44,7 +44,7 @@ EXECUTE_OSB=$(git commit-tree -m "2 left read dup dup add left 1 right write 1 l
 # Closing angled bracket
 
 CSB_RETURN=$(git commit-tree -m "dup write dup dup add right" -p $LOOP_BACK $EMPTY_TREE)
-CSB_DROP=$(git commit-tree -m "dup sub left read dup add right" -p $LOOP_BACK $EMPTY_TREE)
+CSB_DROP=$(git commit-tree -m "pop read dup add right" -p $LOOP_BACK $EMPTY_TREE)
 EXECUTE_CSB=$(git commit-tree -m "2 left read dup dup add left 1 right write 1 left read 1 right read 1 left dup add right 2 right" -p $CSB_DROP -p $CSB_RETURN $EMPTY_TREE)
 
 # Main loop
@@ -60,10 +60,10 @@ git tag main-loop $MAIN
 
 READ_BACK_DO_LOOP=$(git commit-tree -m "[read-back]" $EMPTY_TREE)
 READ_BACK_FINISH=$(git commit-tree -m "2 right" -p $MAIN $EMPTY_TREE)
-READ_BACK=$(git commit-tree -m "dup sub left 2 left read" -p $READ_BACK_FINISH -p $READ_BACK_DO_LOOP $EMPTY_TREE)
+READ_BACK=$(git commit-tree -m "pop 2 left read" -p $READ_BACK_FINISH -p $READ_BACK_DO_LOOP $EMPTY_TREE)
 git tag read-back $READ_BACK
 
-WRITE=$(git commit-tree -m "write 2 right dup sub right [read-loop]" $EMPTY_TREE)
+WRITE=$(git commit-tree -m "write 2 right pop [read-loop]" $EMPTY_TREE)
 
 READ_CAB=$(git commit-tree -m "1" -p $WRITE $EMPTY_TREE)
 READ_OAB=$(git commit-tree -m "2" -p $WRITE $EMPTY_TREE)
@@ -74,7 +74,7 @@ READ_COMMA=$(git commit-tree -m "6" -p $WRITE $EMPTY_TREE)
 READ_OSB=$(git commit-tree -m "7" -p $WRITE $EMPTY_TREE)
 READ_CSB=$(git commit-tree -m "8" -p $WRITE $EMPTY_TREE)
 
-IGNORE=$(git commit-tree -m "dup sub left [read-loop]" $EMPTY_TREE)
+IGNORE=$(git commit-tree -m "pop [read-loop]" $EMPTY_TREE)
 DECODE8=$(git commit-tree -m "dup \"]\" sub" -p $READ_CSB -p $IGNORE $EMPTY_TREE)
 DECODE7=$(git commit-tree -m "dup \"[\" sub" -p $READ_OSB -p $DECODE8 $EMPTY_TREE)
 DECODE6=$(git commit-tree -m "dup \",\" sub" -p $READ_COMMA -p $DECODE7 $EMPTY_TREE)
