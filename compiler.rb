@@ -133,13 +133,13 @@ HERE
                 i += 1
 
                 case command
-                when "getchar"
+                when "get"
                     ir << "  %c#{uu} = call i32 @getchar()\n"
                     ir << "  %c2#{uu} = sext i32 %c#{uu} to i64\n"
                     ir << "  %c3#{uu} = icmp eq i64 %c2#{uu}, -1\n"
                     ir << "  %c4#{uu} = select i1 %c3#{uu}, i64 0, i64 %c2#{uu}\n"
                     ir << "  call void @push(i64 %c4#{uu})\n"
-                when "putchar"
+                when "put"
                     ir << "  %c#{uu} = call i64 @pop()\n"
                     ir << "  %c2#{uu} = trunc i64 %c#{uu} to i8\n"
                     ir << "  call void @putchar(i8 %c2#{uu})\n"

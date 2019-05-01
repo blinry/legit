@@ -1,10 +1,12 @@
-# legit
+![](images/legit.svg)
 
-Programs written in *legit* are defined entirely by the commits in a Git repository. The contents of the repository are ignored. Influences: [Folders](https://esolangs.org/wiki/Folders), [Befunge](https://esolangs.org/wiki/Befunge), [Brainfuck](https://esolangs.org/wiki/Brainfuck), [Elymas](https://github.com/Drahflow/Elymas).
+Programs written in *legit* are defined entirely by the commits in a Git repository. The content of the repository is ignored. *legit* is designed so that all relevant information is visible when running `git log --graph --oneline`, see the [examples](#examples) below.
+
+Influences: [Folders](https://esolangs.org/wiki/Folders), [Befunge](https://esolangs.org/wiki/Befunge), [Brainfuck](https://esolangs.org/wiki/Brainfuck), [Elymas](https://github.com/Drahflow/Elymas).
 
 ## Memory
 
-Two types of data structures are available: A stack, and an endless tape. Both hold signed integers.
+In each *legit* program, two data structures are available: A stack, and a brainfuck-like endless tape, with a head moving on it. Both hold signed integers.
 
 ## Control flow
 
@@ -24,8 +26,8 @@ Control flow:
 
 I/O:
 
-- `getchar`: read a char from standard input and place its ASCII value on the stack. On EOF, push a 0.
-- `putchar`: pop top stack value and write it to standard output as a char. The value is always truncated to an unsigned byte.
+- `get`: read a char from standard input and place its ASCII value on the stack. On EOF, push a 0.
+- `put`: pop top stack value and write it to standard output as a char. The value is always truncated to an unsigned byte.
 - `<Number>`: push the specified integer on the stack. For example, `42` will push the value 42.
 - `"<Letters>"`: unescape string, then push the individual ASCII characters on the stack. For example, `"Hi\n"` will push the numbers 72, 105, and 10.
 
@@ -39,10 +41,10 @@ Stack operations:
 
 Tape operations:
 
-- `read`: place value of current cell on the stack
-- `write`: pop top stack value and write it to the current cell
-- `left`: pop top stack value, move left for that many places
-- `right`: pop top stack value, move right for that many places
+- `read`: place value of current tape cell on the stack
+- `write`: pop top stack value and write it to the current tape cell
+- `left`: pop top stack value, move tape head left for that many places
+- `right`: pop top stack value, move tape head right for that many places
 
 # Examples
 
@@ -52,10 +54,29 @@ Tape operations:
 
 Alternatively, you can also clone them directly from GitHub:
 
-- [hello](https://github.com/blinry/legit-hello) is just a hello world program
-- [rot13](https://github.com/blinry/legit-rot13) is a [ROT13](https://en.wikipedia.org/wiki/ROT13) implementation
-- [brainfuck](https://github.com/blinry/legit-brainfuck) is a [Brainfuck](https://en.wikipedia.org/wiki/Brainfuck) interpreter!
-- *quine* is a program that outputs the Git commands required to create itself. This doesn't actually exist yet. I challenge you to write it!
+## [hello](https://github.com/blinry/legit-hello)
+
+A simple hello world program.
+
+![](images/hello.png)
+
+## [rot13](https://github.com/blinry/legit-rot13)
+
+A [ROT13](https://en.wikipedia.org/wiki/ROT13) implementation.
+
+![](images/rot13.png)
+
+## [brainfuck](https://github.com/blinry/legit-brainfuck)
+
+A fully-functioning [Brainfuck](https://en.wikipedia.org/wiki/Brainfuck) interpreter!
+
+![](images/brainfuck.png)
+
+## quine
+
+This program outputs the Git commands required to create itself.
+
+This doesn't actually exist yet. I challenge you to write it! :)
 
 # Implementations
 
@@ -65,13 +86,13 @@ For both, you'll need Ruby, and the "rugged" Gem:
 
     gem install rugged
 
-# Running the interpreter
+## Running the interpreter
 
 To execute a program, run
 
     ruby interpreter.rb examples/hello/
 
-# Running the compiler
+## Running the compiler
 
 The compiler compiles a *legit* program to [LLVM IR](https://llvm.org/docs/LangRef.html). You can then use LLVM tools to build binaries for all plaforms where you have a C standard library available (*legit* will be linked with `exit`, `getchar` and `putchar`).
 

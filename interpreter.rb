@@ -105,10 +105,10 @@ class LegitInterpreter
 
 
         case command
-        when "getchar"
+        when "get"
             c = STDIN.getc
             @stack.push c.nil? ? 0 : c.ord
-        when "putchar"
+        when "put"
             c = (@stack.pop % 256).chr
             STDOUT.write c
         when "dup"

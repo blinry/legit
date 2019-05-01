@@ -8,7 +8,7 @@ git init -q
 
 EMPTY_TREE=$(git write-tree)
 
-ERROR=$(git commit-tree -m "\"\\nrorrE\" putchar putchar putchar putchar putchar putchar" $EMPTY_TREE)
+ERROR=$(git commit-tree -m "\"\\nrorrE\" put put put put put put" $EMPTY_TREE)
 
 # Execute commands
 
@@ -19,8 +19,8 @@ EXECUTE_CAB=$(git commit-tree -m "2 left read 1 add write 2 right read dup add r
 EXECUTE_OAB=$(git commit-tree -m "2 left read 1 sub write 2 right read dup add right" -p $LOOP_BACK $EMPTY_TREE)
 EXECUTE_PLUS=$(git commit-tree -m "2 left read dup dup add left read 1 add write dup add right 2 right read dup add right" -p $LOOP_BACK $EMPTY_TREE)
 EXECUTE_MINUS=$(git commit-tree -m "2 left read dup dup add left read 1 sub write dup add right 2 right read dup add right" -p $LOOP_BACK $EMPTY_TREE)
-EXECUTE_DOT=$(git commit-tree -m "2 left read dup dup add left read putchar dup add right 2 right read dup add right" -p $LOOP_BACK $EMPTY_TREE)
-EXECUTE_COMMA=$(git commit-tree -m "2 left read dup dup add left getchar write dup add right 2 right read dup add right" -p $LOOP_BACK $EMPTY_TREE)
+EXECUTE_DOT=$(git commit-tree -m "2 left read dup dup add left read put dup add right 2 right read dup add right" -p $LOOP_BACK $EMPTY_TREE)
+EXECUTE_COMMA=$(git commit-tree -m "2 left read dup dup add left get write dup add right 2 right read dup add right" -p $LOOP_BACK $EMPTY_TREE)
 
 # Opening angled bracket
 
@@ -83,8 +83,8 @@ DECODE4=$(git commit-tree -m "dup \"-\" sub" -p $READ_MINUS -p $DECODE5 $EMPTY_T
 DECODE3=$(git commit-tree -m "dup \"+\" sub" -p $READ_PLUS -p $DECODE4 $EMPTY_TREE)
 DECODE2=$(git commit-tree -m "dup \"<\" sub" -p $READ_OAB -p $DECODE3 $EMPTY_TREE)
 DECODE1=$(git commit-tree -m "dup \">\" sub" -p $READ_CAB -p $DECODE2 $EMPTY_TREE)
-GETCHAR=$(git commit-tree -m "getchar dup" -p $READ_BACK -p $DECODE1 $EMPTY_TREE)
-git tag read-loop $GETCHAR
+get=$(git commit-tree -m "get dup" -p $READ_BACK -p $DECODE1 $EMPTY_TREE)
+git tag read-loop $get
 
-SETUP=$(git commit-tree -m "500 write 2 right 2 write 4 right" -p $GETCHAR $EMPTY_TREE)
+SETUP=$(git commit-tree -m "500 write 2 right 2 write 4 right" -p $get $EMPTY_TREE)
 git reset $SETUP
