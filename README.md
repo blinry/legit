@@ -105,3 +105,9 @@ And then, run a tool like `clang` to optimize it and produce a binary:
     clang -O3 hello.ll -o hello
 
 As an alternative to the second step, you can use the provided Makefile and simply run `make hello`.
+
+## License
+
+The *legit* logo is a modification of Jason Long's original Git logo. The original as well as the modification are available under the terms of [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/deed.en).
+
+All other files in this repository are available under the terms of [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
