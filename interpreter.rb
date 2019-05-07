@@ -141,7 +141,7 @@ class LegitInterpreter
             @tape.right v
         when "quit"
             exit
-        when /\d+/
+        when /^\d+$/
             @stack.push command.to_i
         when /^\[.*\]$/
             tag_name = command[1..-2]

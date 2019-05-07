@@ -179,7 +179,7 @@ HERE
                     ir << "  call void @left(i64 %a#{uu})\n"
                 when "quit"
                     ir << "  call void @exit(i32 0)\n"
-                when /\d+/
+                when /^\d+$/
                     ir << "  call void @push(i64 #{command.to_i})\n"
                 when /^[a-zA-Z]$/
                     ir << "  call void @push(i64 #{command[0].ord})\n"
