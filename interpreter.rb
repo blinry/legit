@@ -2,20 +2,21 @@ require "rugged"
 
 class String
     def myshellsplit
-        pieces = [""]
-        stringmode = false
-        self.strip.gsub(/\s+/, " ").split("").each do |c|
-            if c == '"'
-                stringmode = (not stringmode)
-            elsif c == ' ' and not stringmode
-                pieces << ""
-            end
+        return self.scan /(?:                  # MATCH EITHER
+                                "              # a string literal, which begins with "
+                                (?:            # and contains
 
-            unless c == ' ' and not stringmode
-                pieces[-1] = pieces.last+c
-            end
-        end
-        return pieces
+                                        \\.    # any escaped character,
+                                    |          # or
+                                        [^"\\] # any character which is not " or \
+
+                                )*             # of which there can be any number.
+                                "              # Finally, string literals end with a ".
+
+                            |                  # OR match a non-string instruction
+                                \S+            # which are all composed of one or more
+                                               # non-whitespace characters.
+                          )/x
     end
 end
 
